@@ -10,36 +10,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up SSH agent
-        uses: webfactory/ssh-agent@v0.7.0
-        with:
-          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
-
-      - name: Add GitHub to known hosts (so git clone works)
+      - name: Install SSH keys
         run: |
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          install -m 600 -D /dev/null ~/.ssh/id_ed25519
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} > ~/.ssh/known_hosts
 
-      - name: Deploy to VPS
+      - name: Connect and pull
         run: |
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
-            set -e
-
-            mkdir -p ~/projects
-            cd ~/projects
-
-            echo "Cloning: git@github.com:${{ github.repository }}.git ${{ github.event.repository.name }}"
-
-            if [ ! -d "hospital-dashboard" ]; then
-              git clone git@github.com:${{ github.repository }}.git ${{ github.event.repository.name }}
-            fi
-
-            cd hospital-dashboard
-            git pull origin main
-
-            docker compose down
-            docker compose up --build -d
-          EOF
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd ~/projects/${{ github.event.repository.name }} && git checkout main && git pull"
+      - name: Clean up
+        run: rm -rf ~/.ssh
 
