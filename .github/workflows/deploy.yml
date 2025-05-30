@@ -33,7 +33,7 @@ jobs:
 
             docker compose down
             docker compose up --build -d
-          "
+            "
       - name: Clean up
         run: rm -rf ~/.ssh
 
