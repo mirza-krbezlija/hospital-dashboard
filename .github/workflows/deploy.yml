@@ -10,38 +10,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up SSH key
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
+
+      - name: Add GitHub to known hosts
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+          ssh -i ~/.ssh/id_ed25519 ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
+            mkdir -p ~/.ssh
+            ssh-keyscan github.com >> ~/.ssh/known_hosts
+          EOF
 
-      - name: Deploy to VPS
-        env:
-          REPO_NAME: ${{ github.event.repository.name }}
-          REPO_URL: git@github.com:${{ github.repository }}.git
+      - name: Deploy app
         run: |
-          ssh -i ~/.ssh/id_ed25519 ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << EOF
-            set -e
-
-            PROJECT_DIR="\$HOME/projects/$REPO_NAME"
-
-            if [ ! -d "\$PROJECT_DIR" ]; then
-              echo "Cloning '\$REPO_URL' into '\$PROJECT_DIR'"
-              mkdir -p "\$HOME/projects"
-              cd "\$HOME/projects"
-              git clone "$REPO_URL" "$REPO_NAME"
-            else
-              echo "Project exists. Pulling latest changes."
-              cd "\$PROJECT_DIR"
-              git pull origin main
+          ssh -i ~/.ssh/id_ed25519 ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
+            mkdir -p ~/projects
+            cd ~/projects
+            if [ ! -d "hospital-dashboard" ]; then
+              git clone git@github.com:${{ github.repository }} hospital-dashboard
             fi
-
-            cd "\$PROJECT_DIR"
+            cd hospital-dashboard
+            git pull origin main
+            docker compose down
             docker compose up --build -d
           EOF
 
