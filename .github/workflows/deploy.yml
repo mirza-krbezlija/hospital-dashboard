@@ -10,28 +10,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Set up SSH agent
-        uses: webfactory/ssh-agent@v0.7.0
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.8.0
         with:
-          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Add GitHub to known hosts (so git clone works)
+      - name: Add GitHub to known_hosts on VPS
         run: |
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "ssh-keyscan github.com >> ~/.ssh/known_hosts"
 
-      - name: Deploy to VPS
+      - name: Deploy over SSH
         run: |
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
             set -e
 
             mkdir -p ~/projects
             cd ~/projects
 
             if [ ! -d "hospital-dashboard" ]; then
-              git clone git@github.com:${{ github.repository }} hospital-dashboard
+              git clone git@github.com:YOUR_USERNAME/hospital-dashboard hospital-dashboard
             fi
 
             cd hospital-dashboard
