@@ -21,7 +21,7 @@ jobs:
           ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} '
             set -e
 
-            if [ ! -d '$HOME/projects/${{ github.repository_owner }}/${{ github.event.repository.name }}']
+            if [ ! -d '$HOME/projects/${{ github.repository_owner }}/${{ github.event.repository.name }}']; then
               mkdir -p $HOME/projects/${{ github.repository_owner }}
               git clone git@github.com:${{ github.repository_owner }}/${{ github.event.repository.name }}.git
               cd $HOME/projects/${{ github.repository_owner }}/${{ github.event.repository.name }}
