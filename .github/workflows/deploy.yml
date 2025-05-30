@@ -1,26 +1,43 @@
-- name: Set up SSH
-  uses: webfactory/ssh-agent@v0.7.0
-  with:
-    ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
+name: Deploy to VPS
 
-- name: Add GitHub to known hosts
-  run: |
-    ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
-      mkdir -p ~/.ssh
-      ssh-keyscan github.com >> ~/.ssh/known_hosts
-    EOF
+on:
+  push:
+    branches:
+      - main
 
-- name: Deploy app
-  run: |
-    ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
-      mkdir -p ~/projects
-      cd ~/projects
-      if [ ! -d "hospital-dashboard" ]; then
-        git clone git@github.com:${{ github.repository }} hospital-dashboard
-      fi
-      cd hospital-dashboard
-      git pull origin main
-      docker compose down
-      docker compose up --build -d
-    EOF
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up SSH agent
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
+
+      - name: Add GitHub to known hosts (so git clone works)
+        run: |
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+      - name: Deploy to VPS
+        run: |
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
+            set -e
+
+            mkdir -p ~/projects
+            cd ~/projects
+
+            if [ ! -d "hospital-dashboard" ]; then
+              git clone git@github.com:${{ github.repository }} hospital-dashboard
+            fi
+
+            cd hospital-dashboard
+            git pull origin main
+
+            docker compose down
+            docker compose up --build -d
+          EOF
 
