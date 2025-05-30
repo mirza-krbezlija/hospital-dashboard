@@ -30,8 +30,10 @@ jobs:
             mkdir -p ~/projects
             cd ~/projects
 
+            echo "Cloning: git@github.com:${{ github.repository }}.git ${{ github.event.repository.name }}"
+
             if [ ! -d "hospital-dashboard" ]; then
-              git clone git@github.com:${{ github.repository }}.git ${{ github.repository }}
+              git clone git@github.com:${{ github.repository }}.git ${{ github.event.repository.name }}
             fi
 
             cd hospital-dashboard
