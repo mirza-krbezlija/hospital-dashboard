@@ -13,6 +13,7 @@ export default function Home() {
           priority
         />
         <p>This is a test</p>
+        <p>Hello from Mirza.</p>
       </main>
       <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center"></footer>
     </div>
