@@ -18,7 +18,7 @@ jobs:
 
       - name: Connect and pull
         run: |
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd ~/projects/${{ github.event.repository.name }} && git checkout main && git pull"
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd ~/projects/${{ github.event.repository.name }} && git checkout main && git pull && docker compose down && docker compose up --build -d"
       - name: Clean up
         run: rm -rf ~/.ssh
 
