@@ -10,10 +10,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Setup SSH key
+      - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_ed25519
@@ -21,11 +21,27 @@ jobs:
           ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy to VPS
+        env:
+          REPO_NAME: ${{ github.event.repository.name }}
+          REPO_URL: git@github.com:${{ github.repository }}.git
         run: |
-          ssh -i ~/.ssh/id_ed25519 ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
-            cd /opt/hospital-dashboard
-            git pull origin main
-            docker compose down
+          ssh -i ~/.ssh/id_ed25519 ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << EOF
+            set -e
+
+            PROJECT_DIR="\$HOME/projects/$REPO_NAME"
+
+            if [ ! -d "\$PROJECT_DIR" ]; then
+              echo "Cloning \$REPO_URL into \$PROJECT_DIR"
+              mkdir -p "\$HOME/projects"
+              cd "\$HOME/projects"
+              git clone "$REPO_URL" "$REPO_NAME"
+            else
+              echo "Project exists. Pulling latest changes."
+              cd "\$PROJECT_DIR"
+              git pull origin main
+            fi
+
+            cd "\$PROJECT_DIR"
             docker compose up --build -d
           EOF
 
