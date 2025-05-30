@@ -31,7 +31,7 @@ jobs:
             PROJECT_DIR="\$HOME/projects/$REPO_NAME"
 
             if [ ! -d "\$PROJECT_DIR" ]; then
-              echo "Cloning \$REPO_URL into \$PROJECT_DIR"
+              echo "Cloning '\$REPO_URL' into '\$PROJECT_DIR'"
               mkdir -p "\$HOME/projects"
               cd "\$HOME/projects"
               git clone "$REPO_URL" "$REPO_NAME"
