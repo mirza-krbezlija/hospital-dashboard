@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 // import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
-import {
-  LayoutDashboard,
-  Users,
-  CalendarCheck,
-  CreditCard,
-} from "lucide-react";
+// import {
+//   LayoutDashboard,
+//   Users,
+//   CalendarCheck,
+//   CreditCard,
+// } from "lucide-react";
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -31,40 +31,44 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="flex h-screen bg-gray-100 text-gray-900">
-        <aside className="w-64 bg-gray-900 text-white shadow-md p-4">
-          <h2 className="text-2xl font-bold mb-6">🏥 Hospital</h2>
-          <nav className="space-y-4">
+      <body>
+
+        <nav className="flex items-center gap-6 bg-white shadow py-6 px-4 text-gray-600">
+          <h2 className="text-2xl font-bold">🏥 Modern Multi Speciality Hospital</h2>
+
+          <div className="flex-grow" />
+
+          <div id="nav-tabs" className="flex gap-8 mx-4">
             <Link
-              href="/dashboard"
+              href="/home"
               className="flex items-center gap-2 hover:text-blue-600"
             >
-              <LayoutDashboard size={18} /> Dashboard
+              Home
             </Link>
             <Link
-              href="/patients"
+              href="/services"
               className="flex items-center gap-2 hover:text-blue-600"
             >
-              <Users
-                size={20}
-                className="text-gray-600 group-hover:text-blue-600 transition"
-              />
-              Patients
+              Services
             </Link>
             <Link
-              href="/appointments"
+              href="/about-us"
               className="flex items-center gap-2 hover:text-blue-600"
             >
-              <CalendarCheck size={18} /> Appointments
+              About Us
             </Link>
             <Link
-              href="/billing"
+              href="/contact"
               className="flex items-center gap-2 hover:text-blue-600"
             >
-              <CreditCard size={18} /> Billing
+              Contact
             </Link>
-          </nav>
-        </aside>
+          </div>
+          <div id="auth-buttons" className="px-2 mx-2">
+            <button className="border-1 rounded-2xl mx-1 px-4 py-1">Login</button>
+            <button className="border-1 rounded-2xl mx-1 px-4 py-1 bg-blue-900 text-white">Sign Up</button>
+          </div>
+        </nav>
         <main className="flex-1 p-6 overflow-y-auto">{children}</main>
       </body>
     </html>
